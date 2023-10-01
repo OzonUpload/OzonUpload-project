@@ -1,0 +1,7 @@
+configparser
+prompt-toolkit
+SQLAlchemy
+tqdm
+pytelegrambotapi
+termcolor
+tabulate
