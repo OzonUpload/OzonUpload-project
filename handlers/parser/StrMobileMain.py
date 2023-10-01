@@ -1,6 +1,5 @@
 import datetime
 from pathlib import Path
-from pprint import pprint
 
 import str_mobile
 import utils.db_api.handlers.product as db_products
@@ -18,7 +17,7 @@ from tqdm import tqdm
 from utils.config import city, notification, sklads_names, style
 from utils.decorators import mult_threading, notification_bot, timer
 from utils.get_data import get_data
-
+from loguru import logger
 from utils.create_dir import PATH_HISTORY
 
 
@@ -75,6 +74,7 @@ class StrMobileMain:
                         "categories": None,
                     },
                     "full": None,
+                    "products": None,
                 },
                 "start": {
                     "update": {
@@ -140,6 +140,8 @@ class StrMobileMain:
                         f"Обновлено в базу {len(products)} товаров с str-mobile!",
                         "light_blue",
                     )
+                case "update", "products":
+                    products = self.update_products()
                 case "update", "list", "products", type_products_names:
                     products = self.get_list_info_products(
                         type_products_names=type_products_names
@@ -336,9 +338,10 @@ class StrMobileMain:
         products = str_mobile.update_full()
         [
             db_products.add_product(
-                Article=product.article, VendorId=product.id, VendorUrl=product.url
+                Article=product_info.article, VendorId=product_info.id, VendorUrl=product_info.url, CategoryId=product_info.category_id
             )
             for product in products
+            if (product_info:=product.Product) is not None
         ]
         return products
 
@@ -405,7 +408,15 @@ class StrMobileMain:
             case "Text":
                 products = [product.Text for product in products]
         return products
-
+    
+    def update_products(self):
+        products_saved = db_products.get_products_list()
+        
+        for product_saved in products_saved:
+            self.update_category(product_saved.CategoryId)
+        product_saved = db_products.get_products_list()
+        logger.info(f"Все сохраненные товары обновлены. Всего в базе: {len(products_saved)}")
+    
     def add_product(self, type_product_name: str, args_command: list[str]):
         """Добавление товара/товаров в список товаров по типам: ids, artikles, codes"""
 

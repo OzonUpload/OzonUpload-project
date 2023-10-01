@@ -6,7 +6,7 @@ from termcolor import cprint
 import utils.db_api.handlers.product as db_products
 import utils.db_api.handlers.warehouse as db_warehouses
 from utils.config import sklads_names
-
+from loguru import logger
 
 def upload_products_stoks(
     products_parser: list[ParserProduct],
@@ -43,6 +43,14 @@ def upload_products_stoks(
                 offer_id = f"{article} ({vendor_id})"
 
                 stocks_product = stocks_products[offer_id]
+                if not stocks_product.get("Наличие"):
+                    logger.info(f"{offer_id} не найден на складе Наличие.")
+                    continue
+                
+                if not stocks_product.get("fbo"):
+                    logger.info(f"{offer_id} не найден на складе fbo.")
+                    continue
+                
                 if int(stocks_product["fbo"]["present"]) > 0:
                     current_stocks_fbo_products[offer_id] = stocks_product["fbo"]
                 if int(stocks_product["Наличие"]["present"]) > 0:
