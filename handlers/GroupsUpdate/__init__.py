@@ -16,24 +16,24 @@ class GroupsUpdateMain:
         if not self.path_file_groups.exists():
             self.edit_file_group({})
 
-    def start_group_update(self, name_group: str):
+    def start_group_update(self, group_name: str):
         """Запуск группы обновления"""
 
         dict_parser = self.get_groups_updates()
 
-        if dict_parser.get(name_group):
-            dict_parser_group = dict_parser[name_group]
+        if dict_parser.get(group_name):
+            dict_parser_group = dict_parser[group_name]
         else:
             cprint("Такой группы нету!", "light_red")
             return
 
         cur_group_update = GroupUpdateMain(
-            name_group=name_group, dict_parser=dict_parser_group
+            group_name=group_name, dict_parser=dict_parser_group
         )
         cur_group_update()
 
         groups_update = self.get_groups_updates()
-        groups_update[name_group] = dict_parser_group
+        groups_update[group_name] = dict_parser_group
         self.edit_file_group(groups_update=groups_update)
 
     def get_groups_updates(self):
@@ -44,22 +44,22 @@ class GroupsUpdateMain:
 
         return groups_updates
 
-    def create_group(self, name_group: str):
+    def create_group(self, group_name: str):
         """Создание группы"""
 
         groups_update = self.get_groups_updates()
 
-        if name_group not in groups_update:
-            groups_update[name_group] = {
+        if group_name not in groups_update:
+            groups_update[group_name] = {
                 "products": {"ids": [], "articles": [], "codes": []},
                 "categories": [],
             }
 
             self.edit_file_group(groups_update=groups_update)
-            cprint(f'Группа "{name_group}" создана.', "light_blue")
+            cprint(f'Группа "{group_name}" создана.', "light_blue")
             return True
         else:
-            cprint(f'Группа "{name_group}" уже существует.', "light_red")
+            cprint(f'Группа "{group_name}" уже существует.', "light_red")
             return False
 
     def edit_file_group(self, groups_update: dict):

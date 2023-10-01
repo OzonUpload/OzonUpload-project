@@ -24,12 +24,12 @@ class GroupUpdateMain:
     update_category = StrMobileMain.update_category
     add_product = StrMobileMain.add_product
 
-    def __init__(self, name_group: str, dict_parser: dict):
-        self.name_group = name_group
+    def __init__(self, group_name: str, dict_parser: dict):
+        self.group_name = group_name
         self.session = PromptSession(
             history=FileHistory(
                 PATH_HISTORY_GROUPS_UPDATE
-                / Path(f"history_{self.__class__.__name__}_{name_group}")
+                / Path(f"history_{self.__class__.__name__}_{group_name}")
             )
         )
         self.dict_parser = dict_parser
@@ -39,7 +39,7 @@ class GroupUpdateMain:
 
     def __call__(self):
         message = [
-            ("class:project", self.name_group),
+            ("class:project", self.group_name),
             ("class:at", ":"),
             ("class:sign_more", ">"),
         ]
@@ -293,7 +293,7 @@ class GroupUpdateMain:
             set_warehouse_name=set_warehouse_name,
         )
 
-        text = f'Обновление остатков группы "{self.name_group}", {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!'
+        text = f'Обновление остатков группы "{self.group_name}", {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!'
 
         return text, errors
 
@@ -343,7 +343,7 @@ class GroupUpdateMain:
             products_parser=products_parser
         )
 
-        text = f'Обновление цен группы "{self.name_group}", {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!'
+        text = f'Обновление цен группы "{self.group_name}", {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!'
 
         return text, errors
 
