@@ -101,14 +101,15 @@ def update_product(ArticleOzon: int, ProductId: int, WarehouseName: str):
         return False
 
 
-def add_product(Article: int, VendorId: int, VendorUrl: str):
+def add_product(Article: int, VendorId: int, VendorUrl: str, CategoryId: str):
     """Добавление информации о товаре"""
 
     try:
         product = session.query(Product).filter(Product.VendorId == VendorId).one()
         
-        if product.VendorUrl != VendorUrl:
+        if product.VendorUrl != VendorUrl or product.CategoryId != CategoryId:
             product.VendorUrl = VendorUrl
+            product.CategoryId = CategoryId
             session.add(product)
             session.commit()
             return True
@@ -116,7 +117,7 @@ def add_product(Article: int, VendorId: int, VendorUrl: str):
             return False
         
     except sqlalchemy_exc.NoResultFound:
-        product = Product(Article=Article, VendorId=VendorId, VendorUrl=VendorUrl)
+        product = Product(Article=Article, VendorId=VendorId, VendorUrl=VendorUrl, CategoryId=CategoryId)
         session.add(product)
         session.commit()
         return True

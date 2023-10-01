@@ -12,6 +12,7 @@ from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.history import FileHistory
 from str_mobile.utils.db_api.Category.handlers import settings_price, settings_stock
+from str_mobile.models.product import Product
 from termcolor import cprint
 from tqdm import tqdm
 from utils.config import city, notification, sklads_names, style
@@ -117,14 +118,10 @@ class StrMobileMain:
 
             match value:
                 # update
-                case "update", "category", code_category:
-                    products = self.update_category(code_category=code_category)
+                case "update", "category", category_code:
+                    products = self.update_category(category_code=category_code)
                     if len(products) > 0:
                         [print(product) for product in products]
-                    cprint(
-                        f"Обновлено в базу {len(products)} товаров с str-mobile!",
-                        "light_blue",
-                    )
                 case "update", "product", type_product_name, product_name:
                     ProductInfo = self.update_product(
                         type_product_name=type_product_name, product_name=product_name
@@ -160,11 +157,11 @@ class StrMobileMain:
                         [
                             products.append(product)
                             for product in self.update_category(
-                                code_category=code_category
+                                category_code=category_code
                             )
                             if product is not None
                         ]
-                        for code_category in tqdm(
+                        for category_code in tqdm(
                             codes_category,
                             desc="Обновление списка категорий",
                             colour="green",
@@ -217,16 +214,16 @@ class StrMobileMain:
                         print(list_categories)
                     else:
                         cprint("Список категорий пуст!", "light_blue")
-                case "get", "category_settings", code_category:
-                    print(f"Категория: {code_category}")
+                case "get", "category_settings", category_code:
+                    print(f"Категория: {category_code}")
                     if current_settings_price := settings_price.get(
-                        CategoryId=code_category
+                        CategoryId=category_code
                     ):
                         print(
                             f"Цена логистики: {current_settings_price.PriceLogistics}\nПроцент накрутки: {current_settings_price.PercentCheating}"
                         )
                     if current_settings_stock := settings_stock.get(
-                        CategoryId=code_category
+                        CategoryId=category_code
                     ):
                         print(
                             f'Работа фильтра отстатков: {ibtt(int(current_settings_stock.WorkedFilter),"ru")}\nМинимальный остаток: {current_settings_stock.MinStock}'
@@ -279,7 +276,7 @@ class StrMobileMain:
                     break
 
             if settings_price.add(
-                CategoryId=code_category,
+                CategoryId=category_code,
                 PriceLogistics=price_logistics,
                 PercentCheating=percent_cheating,
             ):
@@ -305,11 +302,11 @@ class StrMobileMain:
                 min_stock = 0
 
             if settings_stock.add(
-                CategoryId=code_category, WorkedFilter=worked_filter, MinStock=min_stock
+                CategoryId=category_code, WorkedFilter=worked_filter, MinStock=min_stock
             ):
                 cprint("Настройки сохранены.", "light_blue")
 
-        code_category = input("Добавление настроек для категории: ")
+        category_code = input("Добавление настроек для категории: ")
 
         if type_settings == "price":
             add_price()
@@ -368,33 +365,42 @@ class StrMobileMain:
             return ProductInfo
 
         ProductInfo = str_mobile.update_product(code_product=code_product)
-        product = ProductInfo.Product
+        product: Product = ProductInfo.Product
 
         if product is not None:
             db_products.add_product(
-                Article=product.article, VendorId=product.id, VendorUrl=product.url
+                Article=product.article,
+                VendorId=product.id,
+                VendorUrl=product.url,
+                CategoryId=product.category_id,
             )
             db_products.update_warehouse_product(
                 VendorId=product.id,
                 WarehouseName=sklads_names[product.sklad].WarehouseName,
             )
         else:
-            cprint(f'Ошибка добавление товара с кодом "{code_product}".', "light_red")
+            self.update_category(category_code=product_info.CategoryId)
+            ProductInfo = self.update_product(type_product_name, product_name)
         return ProductInfo
 
-    def update_category(self, code_category: str):
+    def update_category(self, category_code: str):
         """Обновление товаров категории по номеру категории"""
 
-        products = str_mobile.update_category(code_category=code_category)
+        products = str_mobile.update_category(category_code=category_code)
         [
             db_products.add_product(
                 Article=product.Product.article,
                 VendorId=product.Product.id,
                 VendorUrl=product.Product.url,
+                CategoryId=product.Product.category_id
             )
             for product in products
             if product.Product is not None
         ]
+        cprint(
+            f"Обновлено в базу {len(products)} товаров с str-mobile!",
+            "light_blue",
+        )
         match self.format_output:
             case "Text":
                 products = [product.Text for product in products]
@@ -496,10 +502,10 @@ class StrMobileMain:
                     [
                         products_parser.append(product)
                         for product in str_mobile.update_category(
-                            code_category=code_category
+                            category_code=category_code
                         )
                     ]
-                    for code_category in tqdm(
+                    for category_code in tqdm(
                         codes_category,
                         "Обновление списка категорий",
                         colour="green",
@@ -549,10 +555,10 @@ class StrMobileMain:
                     [
                         products_parser.append(product)
                         for product in str_mobile.update_category(
-                            code_category=code_category
+                            category_code=category_code
                         )
                     ]
-                    for code_category in tqdm(
+                    for category_code in tqdm(
                         codes_category,
                         "Обновление списка категорий",
                         colour="green",

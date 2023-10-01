@@ -14,4 +14,5 @@ class Product(Base):
     VendorId = Column(Integer, nullable=False)
     VendorUrl = Column(String(300), nullable=False)
     ProductId = Column(Integer, nullable=True)
-    WarehouseName = Column(String, nullable=True)
+    CategoryId = Column(String(300), nullable=True)
+    WarehouseName = Column(String(300), nullable=True)

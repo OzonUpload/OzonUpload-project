@@ -122,11 +122,11 @@ class GroupUpdateMain:
                         [
                             products.append(product)
                             for product in self.update_category(
-                                code_category=code_category
+                                category_code=category_code
                             )
                             if product is not None
                         ]
-                        for code_category in tqdm(
+                        for category_code in tqdm(
                             codes_category,
                             desc="Обновление списка категорий",
                             colour="green",
@@ -266,10 +266,10 @@ class GroupUpdateMain:
                     [
                         products_parser.append(product)
                         for product in str_mobile.update_category(
-                            code_category=code_category
+                            category_code=category_code
                         )
                     ]
-                    for code_category in tqdm(
+                    for category_code in tqdm(
                         codes_category,
                         "Обновление списка категорий",
                         colour="green",
@@ -319,10 +319,10 @@ class GroupUpdateMain:
                     [
                         products_parser.append(product)
                         for product in str_mobile.update_category(
-                            code_category=code_category
+                            category_code=category_code
                         )
                     ]
-                    for code_category in tqdm(
+                    for category_code in tqdm(
                         codes_category,
                         "Обновление списка категорий",
                         colour="green",

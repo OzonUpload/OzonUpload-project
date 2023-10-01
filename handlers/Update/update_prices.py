@@ -39,8 +39,8 @@ def update_prices(args_command: list[str]):
                 ]
                 if product is not None
             ]
-        case "category", code_category, *args_command:
-            products_parser = str_mobile.update_category(code_category=code_category)
+        case "category", category_code, *args_command:
+            products_parser = str_mobile.update_category(category_code=category_code)
         case "product", type_product_name, product_name, *args_command:
             product_info = db_products.get_product_type_name(
                 type_product_name=type_product_name, product_name=product_name

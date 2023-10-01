@@ -119,9 +119,9 @@ def update_stocks(args_command: list[str]):
                     ]
                     if product is not None
                 ]
-        case "category", code_category, *args_command:
+        case "category", category_code, *args_command:
             set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
-            products_parser = str_mobile.update_category(code_category=code_category)
+            products_parser = str_mobile.update_category(category_code=category_code)
         case "product", type_product_name, product_name, *args_command:
             set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
 
