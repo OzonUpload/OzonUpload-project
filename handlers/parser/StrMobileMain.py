@@ -325,9 +325,10 @@ class StrMobileMain:
         products = str_mobile.update()
         [
             db_products.add_product(
-                Article=product.article, VendorId=product.id, VendorUrl=product.url
+                Article=product.article, VendorId=product.id, VendorUrl=product.url, CategoryId=product.category_id
             )
-            for product in products
+            for product_info in products
+            if (product:=product_info.Product) is not None
         ]
         return products
 
