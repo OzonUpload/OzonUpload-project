@@ -5,6 +5,7 @@ import traceback
 from sqlalchemy import create_engine
 from sqlalchemy import exc as sqlalchemy_exc
 from sqlalchemy.orm import Session
+from tqdm import tqdm
 from utils.create_dir import PATH_PROJECT
 
 from utils.db_api.models.product import Product
@@ -125,6 +126,18 @@ def add_product(Article: int, VendorId: int, VendorUrl: str, CategoryId: str):
         traceback.print_exception(e)
         return False
     
+def add_products(products):
+    pbar  = tqdm(
+        products,
+        leave=False,
+        colour="blue",
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}"
+        )
+    for product_info in pbar:
+        if (product:=product_info.Product) is not None:
+            pbar.set_description(f"Добавление товара {product.article}")
+            add_product(Article=product.article, VendorId=product.id, VendorUrl=product.url, CategoryId=product.category_id)
+            
 def delete_product(ProductId: int):
     try:
         product = session.query(Product).filter(Product.ProductId == ProductId).one()

@@ -323,13 +323,7 @@ class StrMobileMain:
         """Обновление информации о всех товарах"""
 
         products = str_mobile.update()
-        [
-            db_products.add_product(
-                Article=product.article, VendorId=product.id, VendorUrl=product.url, CategoryId=product.category_id
-            )
-            for product_info in products
-            if (product:=product_info.Product) is not None
-        ]
+        db_products.add_products(products)
         return products
 
     @timer
@@ -337,13 +331,7 @@ class StrMobileMain:
         """Обновление товаров всех категорий"""
 
         products = str_mobile.update_full()
-        [
-            db_products.add_product(
-                Article=product_info.article, VendorId=product_info.id, VendorUrl=product_info.url, CategoryId=product_info.category_id
-            )
-            for product in products
-            if (product_info:=product.Product) is not None
-        ]
+        db_products.add_products(products)
         return products
 
     def update_product(self, type_product_name: str, product_name: str):
@@ -391,16 +379,7 @@ class StrMobileMain:
         """Обновление товаров категории по номеру категории"""
 
         products = str_mobile.update_category(category_code=category_code)
-        [
-            db_products.add_product(
-                Article=product.Product.article,
-                VendorId=product.Product.id,
-                VendorUrl=product.Product.url,
-                CategoryId=product.Product.category_id
-            )
-            for product in products
-            if product.Product is not None
-        ]
+        db_products.add_products(products)
         cprint(
             f"Обновлено в базу {len(products)} товаров с str-mobile!",
             "light_blue",
