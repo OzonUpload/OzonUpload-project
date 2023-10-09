@@ -26,8 +26,6 @@ config = Configurate().config
 
 __version__ = "1.7.7"
 
-sys.stdout.write("\033[H\033[J")
-
 
 class Main:
     """Класс программы"""
@@ -235,6 +233,7 @@ class Main:
 
 
 if __name__ == "__main__":
+    os.system("cls")
     print(
         f"""Версия программы: {__version__}
 Версия parser: {str_mobile.__version__}

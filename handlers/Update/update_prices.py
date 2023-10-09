@@ -3,10 +3,12 @@ from termcolor import cprint
 from tqdm import tqdm
 
 from handlers.ozon import OzonHandler, OzonMain
+from handlers.parser.StrMobileMain import StrMobileMain
 from utils.config import notification
 from utils.db_api.handlers import product as db_products
 from utils.decorators import notification_bot, timer
 
+str_mobile_main = StrMobileMain()
 
 @timer
 @notification_bot(notification)
@@ -25,7 +27,7 @@ def update_prices(args_command: list[str]):
             products_parser = [
                 product
                 for product in [
-                    str_mobile.update_product(
+                    str_mobile_main.update_product(
                         type_product_name="id", product_name=product_ozon.VendorId
                     ).Product
                     for product_ozon in tqdm(

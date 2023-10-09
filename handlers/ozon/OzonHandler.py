@@ -153,9 +153,9 @@ def upload_products_prices(products_parser: list[ParserProduct]):
                 article = info_product.Article
                 vendor_id = info_product.VendorId
                 offer_id = f"{article} ({vendor_id})"
-                price = product.price
-                min_price = int(round(price - (price * 0.05), -1))
-                old_price = int(round(price + (price * 30 / 100), -1))
+                price = product.product_price
+                min_price = product.min_price
+                old_price = product.discount_price
                 data_product = {
                     "auto_action_enabled": "ENABLED",
                     "currency_code": "RUB",
@@ -167,7 +167,7 @@ def upload_products_prices(products_parser: list[ParserProduct]):
                 }
 
                 products.append(data_product)
-
+    
     result = OzonSeller_api.upload_products_prices(products=products)
     updates = {}
     if result is not None:
