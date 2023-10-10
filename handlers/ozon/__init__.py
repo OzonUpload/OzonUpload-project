@@ -117,4 +117,4 @@ class OzonMain:
         )
 
     def get_stocks_products(self):
-        return OzonSeller_api.current_products_hadlers.current_products.stocks_products
+        return OzonSeller_api.get_stocks_products()

@@ -16,7 +16,7 @@ str_mobile_main = StrMobileMain()
 def update_prices(args_command: list[str]):
     """Обновление цен товаов на озон"""
 
-    print("Выпонение обновления цен...")
+    logger.info("Выпонение обновления цен...")
 
     ozon_main = OzonMain()
 
@@ -69,7 +69,8 @@ def update_prices(args_command: list[str]):
     products_ozon = db_products.get_products_list_ozon()
 
     errors, updates = OzonHandler.upload_products_prices(
-        products_parser=products_parser
+        products_parser=products_parser, 
+        stocks_products=ozon_main.get_stocks_products()
     )
 
     text = f"Обновление цен {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!"

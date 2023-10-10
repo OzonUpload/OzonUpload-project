@@ -67,6 +67,10 @@ class StrMobileMain:
                         "products": {"ids": None, "articles": None, "codes": None},
                         "categories": None,
                     },
+                    "full_data": {
+                        "products": {"ids": None, "articles": None, "codes": None},
+                        "categories": None,
+                    },
                     "product": {"id": None, "article": None, "code": None},
                     "category": None,
                     "list": {
@@ -75,6 +79,7 @@ class StrMobileMain:
                     },
                     "full": None,
                     "products": None,
+                    
                 },
                 "start": {
                     "update": {
@@ -178,6 +183,9 @@ class StrMobileMain:
                     self.update_stocks(args_command=args_command)
                 case "update", "prices", *args_command:
                     self.update_prices(args_command=args_command)
+                case "update", "full_data", *args_command:
+                    self.update_prices(args_command=args_command)
+                    self.update_stocks(args_command=args_command)
                 # start
                 case "start", "update", "stocks", *args_command:
                     self.start_update_stocks(args_command=args_command)
@@ -388,15 +396,17 @@ class StrMobileMain:
             case "Text":
                 products = [product.Text for product in products]
         return products
-    
+
     def update_products(self):
         products_saved = db_products.get_products_list()
-        
+
         for product_saved in products_saved:
             self.update_category(product_saved.CategoryId)
         product_saved = db_products.get_products_list()
-        logger.info(f"Все сохраненные товары обновлены. Всего в базе: {len(products_saved)}")
-    
+        logger.info(
+            f"Все сохраненные товары обновлены. Всего в базе: {len(products_saved)}"
+        )
+
     def add_product(self, type_product_name: str, args_command: list[str]):
         """Добавление товара/товаров в список товаров по типам: ids, artikles, codes"""
 
@@ -461,8 +471,8 @@ class StrMobileMain:
     @notification_bot(notification)
     def update_stocks(self, args_command: list):
         """Обновление остатка товаров на ozon"""
-
-        print("Выпонение обновления остатков...")
+        
+        logger.info("Выпонение обновления остатков...")
 
         match args_command:
             case "products", type_products_names, *args_command:
@@ -504,7 +514,7 @@ class StrMobileMain:
                     )
                 ]
             case _:
-                cprint("Вы ввели нерпавильную команду!", "light_red")
+                logger.warning("Вы ввели нерпавильную команду!", "light_red")
                 return False
 
         if len(products_parser) == 0:
@@ -513,7 +523,7 @@ class StrMobileMain:
         self.ozon_main.update_products()
         products_ozon = db_products.get_products_list_ozon()
 
-        errors, updates = OzonHandler.upload_products_stoks(
+        errors, updates = OzonHandler.upload_products_stocks(
             products_parser=products_parser,
             stocks_products=self.ozon_main.get_stocks_products(),
             set_stock=set_stocks,
@@ -529,17 +539,17 @@ class StrMobileMain:
     def update_prices(self, args_command: list[str]):
         """Обновление цен товаров на ozon"""
 
-        print("Выпонение обновления цен...")
+        logger.info("Выпонение обновления цен...")
 
         match args_command:
-            case "products", type_products_names:
+            case "products", type_products_names, *args_command:
                 products_parser = [
                     product.Product
                     for product in self.get_list_info_products(
                         type_products_names=type_products_names
                     )
                 ]
-            case "categories":
+            case "categories", *args_command:
                 codes_category = self.dict_parser["categories"]
                 products_parser = []
                 [
@@ -557,7 +567,7 @@ class StrMobileMain:
                     )
                 ]
             case _:
-                cprint("Вы ввели нерпавильную команду!", "light_red")
+                logger.warning("Вы ввели нерпавильную команду!", "light_red")
                 return False
 
         if len(products_parser) == 0:
@@ -567,7 +577,8 @@ class StrMobileMain:
         products_ozon = db_products.get_products_list_ozon()
 
         errors, updates = OzonHandler.upload_products_prices(
-            products_parser=products_parser
+            products_parser=products_parser,
+            stocks_products=self.ozon_main.get_stocks_products(),
         )
 
         text = f"Обновление цен, {len(updates)-len(errors)}/{len(products_ozon)} товаров прошло успешно!"

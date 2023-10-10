@@ -72,7 +72,6 @@ def custom_parametrs(args_command: list[str]):
     elif len(args_command) == 1:
         cprint("Недостаточно параметров команды!", "light_red")
         return False
-    
 
     return set_stocks, set_warehouse_name
 
@@ -83,12 +82,11 @@ def update_stocks(args_command: list[str]):
     """Обновление остатка товаров"""
 
     ozon_main = OzonMain()
-    set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
     logger.info("Выпонение обновления остатков...")
-    logger.debug(f"Параметры: {set_stocks=} {set_warehouse_name=}")
 
     match args_command:
         case "full", *args_command:
+            set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
             if set_stocks != None:
                 products_parser = create_null_products(
                     list_products=[
@@ -100,9 +98,7 @@ def update_stocks(args_command: list[str]):
                 products_parser = [
                     product
                     for product in [
-                        str_mobile.update_product(
-                            code_product=product_ozon.VendorUrl
-                        )
+                        str_mobile.update_product(code_product=product_ozon.VendorUrl)
                         for product_ozon in tqdm(
                             products_ozon,
                             desc="Обновление товаров с ProductId",
@@ -114,8 +110,10 @@ def update_stocks(args_command: list[str]):
                     ]
                 ]
         case "category", category_code, *args_command:
+            set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
             products_parser = str_mobile.update_category(category_code=category_code)
         case "product", type_product_name, product_name, *args_command:
+            set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
             if set_stocks != None:
                 products_parser = create_null_products(
                     list_products=[product_name], type_products_names=type_product_name
@@ -127,7 +125,9 @@ def update_stocks(args_command: list[str]):
                 if product_info:
                     code_product = product_info.VendorUrl
                 else:
-                    logger.warning(f"Товар не был  найден в базе данных! {product_name}")
+                    logger.warning(
+                        f"Товар не был  найден в базе данных! {product_name}"
+                    )
                     return False
 
                 product = str_mobile.update_product(code_product=code_product)
@@ -144,11 +144,11 @@ def update_stocks(args_command: list[str]):
     if len(products_parser) == 0:
         logger.warning("Товаров на выгрузку не собрано.")
         return False
-    
+
     ozon_main.update_products()
     products_ozon = db_products.get_products_list_ozon()
 
-    errors, updates = OzonHandler.upload_products_stoks(
+    errors, updates = OzonHandler.upload_products_stocks(
         products_parser=products_parser,
         stocks_products=ozon_main.get_stocks_products(),
         set_stock=set_stocks,

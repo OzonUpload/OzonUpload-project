@@ -286,7 +286,7 @@ class GroupUpdateMain:
         self.ozon_main.update_products()
         products_ozon = db_products.get_products_list_ozon()
 
-        errors, updates = OzonHandler.upload_products_stoks(
+        errors, updates = OzonHandler.upload_products_stocks(
             products_parser=products_parser,
             stocks_products=self.ozon_main.get_stocks_products(),
             set_stock=set_stocks,

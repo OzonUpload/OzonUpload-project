@@ -24,7 +24,7 @@ from utils.get_data import get_data
 
 config = Configurate().config
 
-__version__ = "1.7.7"
+__version__ = "1.0.0"
 
 
 class Main:
@@ -54,6 +54,11 @@ class Main:
                         "product": {"id": None, "article": None, "code": None},
                     },
                     "prices": {
+                        "full": None,
+                        "category": None,
+                        "product": {"id": None, "article": None, "code": None},
+                    },
+                    "full_data": {
                         "full": None,
                         "category": None,
                         "product": {"id": None, "article": None, "code": None},
@@ -119,6 +124,9 @@ class Main:
                     update_stocks(args_command=args_command)
                 case "update", "prices", *args_command:
                     update_prices(args_command=args_command)
+                case "update", "full_data", *args_command:
+                    update_prices(args_command=args_command)
+                    update_stocks(args_command=args_command)
                 # start
                 case "start", "update", "stocks", *args_command:
                     self.start_update_stocks(args_command=args_command)
