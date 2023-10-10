@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from loguru import logger
 
 import str_mobile
 from termcolor import cprint
@@ -71,6 +72,7 @@ def custom_parametrs(args_command: list[str]):
     elif len(args_command) == 1:
         cprint("Недостаточно параметров команды!", "light_red")
         return False
+    
 
     return set_stocks, set_warehouse_name
 
@@ -81,19 +83,12 @@ def update_stocks(args_command: list[str]):
     """Обновление остатка товаров"""
 
     ozon_main = OzonMain()
-    print("Выпонение обновления остатков...")
+    set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
+    logger.info("Выпонение обновления остатков...")
+    logger.debug(f"Параметры: {set_stocks=} {set_warehouse_name=}")
 
     match args_command:
         case "full", *args_command:
-            ozon_main.update_products()
-            products_ozon = db_products.get_products_list_ozon()
-            current_custom_parametrs = custom_parametrs(args_command=args_command)
-
-            if current_custom_parametrs:
-                set_stocks, set_warehouse_name = current_custom_parametrs
-            else:
-                return False
-
             if set_stocks != None:
                 products_parser = create_null_products(
                     list_products=[
@@ -107,7 +102,7 @@ def update_stocks(args_command: list[str]):
                     for product in [
                         str_mobile.update_product(
                             code_product=product_ozon.VendorUrl
-                        ).Product
+                        )
                         for product_ozon in tqdm(
                             products_ozon,
                             desc="Обновление товаров с ProductId",
@@ -117,14 +112,10 @@ def update_stocks(args_command: list[str]):
                             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
                         )
                     ]
-                    if product is not None
                 ]
         case "category", category_code, *args_command:
-            set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
             products_parser = str_mobile.update_category(category_code=category_code)
         case "product", type_product_name, product_name, *args_command:
-            set_stocks, set_warehouse_name = custom_parametrs(args_command=args_command)
-
             if set_stocks != None:
                 products_parser = create_null_products(
                     list_products=[product_name], type_products_names=type_product_name
@@ -136,20 +127,24 @@ def update_stocks(args_command: list[str]):
                 if product_info:
                     code_product = product_info.VendorUrl
                 else:
-                    cprint("Товар не был  найден в базе данных!", "light_red")
+                    logger.warning(f"Товар не был  найден в базе данных! {product_name}")
                     return False
 
-                product = str_mobile.update_product(code_product=code_product).Product
+                product = str_mobile.update_product(code_product=code_product)
 
                 if product is not None:
                     products_parser = [product]
                 else:
-                    cprint("Ошиба получения информации с сайта!", "light_red")
+                    logger.error("Ошибка получения информации с сайта!")
                     return False
         case _:
-            cprint("Вы ввели нерпавильную команду!", "light_red")
+            logger.warning("Вы ввели нерпавильную команду!")
             return False
 
+    if len(products_parser) == 0:
+        logger.warning("Товаров на выгрузку не собрано.")
+        return False
+    
     ozon_main.update_products()
     products_ozon = db_products.get_products_list_ozon()
 

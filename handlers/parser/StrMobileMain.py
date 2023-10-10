@@ -477,7 +477,7 @@ class StrMobileMain:
                     )
                 else:
                     products_parser = [
-                        product.Product
+                        product
                         for product in self.get_list_info_products(
                             type_products_names=type_products_names
                         )

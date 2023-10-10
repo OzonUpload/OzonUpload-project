@@ -1,3 +1,4 @@
+from pprint import pprint
 import OzonSeller_api
 from str_mobile.models.product import Product as ParserProduct
 from tabulate import tabulate
@@ -35,7 +36,8 @@ def upload_products_stoks(
     current_stocks_fbo_products = {}
     current_stocks_products = {}
 
-    for product in products_parser:
+    for product_info in products_parser:
+        product = product_info.Product
         if info_product := db_products.get_product(VendorId=product.id):
             if info_product.ProductId is not None:
                 article = info_product.Article
@@ -71,7 +73,7 @@ def upload_products_stoks(
                         WarehouseName=info_product.WarehouseName
                     )
 
-                if set_stock:
+                if set_stock != None:
                     stock = set_stock
                 else:
                     stock = product.col
@@ -98,7 +100,6 @@ def upload_products_stoks(
     products = []
     for products_warehouse in products_warehouses.values():
         products += products_warehouse
-
     # таблица остатков на FBO
     if len(current_stocks_fbo_products) > 0:
         head = ["offer_id", "Всего", "Зарезервировано"]
@@ -147,7 +148,8 @@ def upload_products_prices(products_parser: list[ParserProduct]):
     """Выгрузка цен товаров на ozon"""
 
     products = []
-    for product in products_parser:
+    for product_info in products_parser:
+        product = product_info.Product
         if info_product := db_products.get_product(VendorId=product.id):
             if info_product.ProductId is not None:
                 article = info_product.Article

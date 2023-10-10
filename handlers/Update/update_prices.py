@@ -1,3 +1,4 @@
+from loguru import logger
 import str_mobile
 from termcolor import cprint
 from tqdm import tqdm
@@ -21,15 +22,12 @@ def update_prices(args_command: list[str]):
 
     match args_command:
         case "full", *args_command:
-            ozon_main.update_products()
-            products_ozon = db_products.get_products_list_ozon()
-
             products_parser = [
                 product
                 for product in [
                     str_mobile_main.update_product(
                         type_product_name="id", product_name=product_ozon.VendorId
-                    ).Product
+                    )
                     for product_ozon in tqdm(
                         products_ozon,
                         desc="Обновление товаров с ProductId",
@@ -39,7 +37,6 @@ def update_prices(args_command: list[str]):
                         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
                     )
                 ]
-                if product is not None
             ]
         case "category", category_code, *args_command:
             products_parser = str_mobile.update_category(category_code=category_code)
@@ -50,20 +47,22 @@ def update_prices(args_command: list[str]):
             if product_info:
                 code_product = product_info.VendorUrl
             else:
-                cprint("Товар не был  найден в базе данных!", "light_red")
+                logger.warning("Товар не был  найден в базе данных!")
                 return False
 
-            product = str_mobile.update_product(code_product=code_product).Product
+            product = str_mobile.update_product(code_product=code_product)
 
             if product is not None:
                 products_parser = [product]
             else:
-                products_parser = []
+                logger.error("Ошибка получения информации с сайта!")
+                return False
         case _:
-            cprint("Вы ввели нерпавильную команду!", "light_red")
+            logger.warning("Вы ввели нерпавильную команду!")
             return False
 
     if len(products_parser) == 0:
+        logger.warning("Товаров на выгрузку не собрано.")
         return False
 
     ozon_main.update_products()

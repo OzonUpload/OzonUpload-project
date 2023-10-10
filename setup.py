@@ -9,7 +9,7 @@ MyFunc_libs = [files for files in os.listdir(libs_path) if files.startswith("MyF
 match sys.argv[1]:
     case "libs":
         os.system(f"pip install Libs/{OzonSeller_libs} Libs/{parser_libs} Libs/{MyFunc_libs}")
-    case "ozon_seller":
+    case "OzonSeller":
         os.system(f"pip install Libs/{OzonSeller_libs}")
     case "parser":
         os.system(f"pip install Libs/{parser_libs}")
